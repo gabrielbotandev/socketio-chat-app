@@ -1,6 +1,8 @@
 import express, { Application } from "express";
 import http from "http";
 import { Server } from "socket.io";
+import chatRoutes from "./routes/chatRoutes";
+import { setupSocket } from "./sockets/socketHandler";
 
 class App {
   private app: Application;
@@ -11,29 +13,23 @@ class App {
     this.app = express();
     this.http = http.createServer(this.app);
     this.io = new Server(this.http);
-    this.listenSocket();
-    this.setupRoutes();
-  }
-  listenServer() {
-    this.http.listen(3000, () => console.log("Server is running"));
-  }
-  listenSocket() {
-    this.io.on("connection", (socket) => {
-      console.log("user connected =>", socket.id);
 
-      socket.on("message", (msg) => {
-        console.log("msg:", msg);
-        this.io.emit("message", msg);
-      });
-    });
+    this.setupRoutes();
+    this.listenSocket();
   }
-  setupRoutes() {
-    this.app.get("/", (req, res) => {
-      res.sendFile(__dirname + "/index.html");
-    });
+
+  private setupRoutes() {
+    this.app.use("/", chatRoutes);
+  }
+
+  private listenSocket() {
+    setupSocket(this.io);
+  }
+
+  public listenServer() {
+    this.http.listen(3000, () => console.log("Server is running"));
   }
 }
 
 const app = new App();
-
 app.listenServer();
