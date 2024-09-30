@@ -67,9 +67,7 @@
     }
   </style>
   <body>
-    <ul id="messages">
-      
-    </ul>
+    <ul id="messages"></ul>
     <form action="" id="form">
       <input type="text" id="input" /><button>send</button>
     </form>
@@ -92,6 +90,20 @@
       socket.on("message", (msg) => {
         const li = document.createElement("li");
         li.textContent = msg;
+        message.appendChild(li);
+      });
+
+      socket.on("user connected", (msg) => {
+        const li = document.createElement("li");
+        li.textContent = msg;
+        li.style.color = "green";
+        message.appendChild(li);
+      });
+
+      socket.on("user disconnected", (msg) => {
+        const li = document.createElement("li");
+        li.textContent = msg;
+        li.style.color = "red";
         message.appendChild(li);
       });
     </script>
