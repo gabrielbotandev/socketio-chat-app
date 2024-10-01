@@ -4,30 +4,45 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat Socket.io</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
     <header>
       <div class="header-content">
         <h1>Chat Socket.io</h1>
-        <div id="status">
+        <div class="status">
           <p id="members"></p>
           <p id="typingIndicator" style="display: none"></p>
         </div>
       </div>
     </header>
+    <main>
+      <form id="usernameForm" class="username-form">
+        <input type="text" id="usernameInput" placeholder="Enter your name" />
+        <button type="submit" id="joinBtn">Join Chat</button>
+      </form>
 
-    <form id="usernameForm">
-      <input type="text" id="usernameInput" placeholder="Enter your name" />
-      <button type="submit">Join Chat</button>
-    </form>
+      <div class="chat-container">
+        <ul id="messages" class="messages"></ul>
+      </div>
 
-    <ul id="messages"></ul>
-
-    <form action="" id="form">
-      <input type="text" id="input" /><button>send</button>
-    </form>
-
+      <form id="form" class="message-form">
+        <input type="text" id="input" placeholder="Type a message..." />
+        <button type="submit" id="sendBtn">
+          <i class="bx bx-send"></i>
+        </button>
+      </form>
+    </main>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/script.js"></script>
   </body>

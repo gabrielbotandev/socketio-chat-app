@@ -1,5 +1,5 @@
-var socket = io();
-const message = document.getElementById("messages");
+const socket = io();
+const messageList = document.getElementById("messages");
 const input = document.getElementById("input");
 const form = document.getElementById("form");
 const usernameForm = document.getElementById("usernameForm");
@@ -9,20 +9,19 @@ let username = "Anonymous";
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   if (input.value) {
-    const messageData = { username: `${username}`, msg: input.value };
+    const messageData = { username: username, msg: input.value };
     socket.emit("message", messageData);
     input.value = "";
+    scrollToBottom();
   }
 });
 
 usernameForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  username = usernameInput.value.trim();
-  if (username) {
-    socket.emit("set username", username);
-    usernameForm.style.display = "none";
-    form.style.display = "flex";
-  }
+  username = usernameInput.value.trim() || "Anonymous";
+  socket.emit("set username", username);
+  usernameForm.style.display = "none";
+  form.style.display = "flex";
 });
 
 const formatDate = (date) => {
@@ -32,24 +31,28 @@ const formatDate = (date) => {
 
 socket.on("load messages", (history) => {
   history.forEach((data) => {
-    const item = document.createElement("li");
-    const time = formatDate(new Date(data.time));
-    item.textContent = `[${time}] ${data.username}: ${data.msg}`;
-    message.appendChild(item);
+    addMessageToChat(data);
   });
+  scrollToBottom();
 });
 
 socket.on("message", (data) => {
+  addMessageToChat(data);
+  scrollToBottom();
+});
+
+const addMessageToChat = (data) => {
   const item = document.createElement("li");
   const time = formatDate(new Date(data.time));
   item.textContent = `[${time}] ${data.username}: ${data.msg}`;
-  message.appendChild(item);
-  window.scrollTo(0, document.body.scrollHeight);
-});
+  item.classList.add(data.username === username ? "sent" : "received");
+  messageList.appendChild(item);
+};
 
 const typingIndicator = document.getElementById("typingIndicator");
 const members = document.getElementById("members");
 let connectedUsers = [];
+let typingTimeout;
 
 socket.on("update user list", (users) => {
   connectedUsers = users;
@@ -76,9 +79,14 @@ function updateMembersList() {
 input.addEventListener("input", () => {
   if (input.value) {
     socket.emit("typing", username);
+    typingIndicator.style.display = "block";
+
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      typingIndicator.style.display = "none";
+    }, 1000);
   } else {
     typingIndicator.style.display = "none";
-    updateMembersList();
   }
 });
 
@@ -87,7 +95,8 @@ socket.on("typing", (username) => {
   typingIndicator.style.display = "block";
   members.style.display = "none";
 
-  setTimeout(() => {
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => {
     typingIndicator.style.display = "none";
     updateMembersList();
   }, 1000);
@@ -97,5 +106,10 @@ function addSystemMessage(msg) {
   const item = document.createElement("li");
   item.textContent = msg;
   item.style.color = "gray";
-  document.getElementById("messages").appendChild(item);
+  item.style.textAlign = "center";
+  messageList.appendChild(item);
+}
+
+function scrollToBottom() {
+  messageList.scrollTop = messageList.scrollHeight;
 }
