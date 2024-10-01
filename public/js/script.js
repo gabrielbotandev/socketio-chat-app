@@ -30,6 +30,15 @@ const formatDate = (date) => {
   return date.toLocaleTimeString(undefined, options);
 };
 
+socket.on("load messages", (history) => {
+  history.forEach((data) => {
+    const item = document.createElement("li");
+    const time = formatDate(new Date(data.time));
+    item.textContent = `[${time}] ${data.username}: ${data.msg}`;
+    message.appendChild(item);
+  });
+});
+
 socket.on("message", (data) => {
   const item = document.createElement("li");
   const time = formatDate(new Date(data.time));

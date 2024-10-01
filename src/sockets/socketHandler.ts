@@ -1,8 +1,12 @@
 import { Server, Socket } from "socket.io";
 
+const messages: { username: string; msg: string; time: string }[] = [];
+
 export const setupSocket = (io: Server) => {
   io.on("connection", (socket: Socket) => {
     let username = "Anonymous";
+
+    socket.emit("load messages", messages);
 
     socket.on("set username", (name) => {
       username = name || "Anonymous";
@@ -15,7 +19,13 @@ export const setupSocket = (io: Server) => {
     socket.on("message", (data) => {
       console.log("Received message:", data);
       const timestamp = new Date().toISOString();
-      io.emit("message", { username: data.username, msg: data.msg, time: timestamp });
+      const messageData = {
+        username: data.username,
+        msg: data.msg,
+        time: timestamp,
+      };
+      messages.push(messageData);
+      io.emit("message", messageData);
     });
 
     socket.on("disconnect", () => {
