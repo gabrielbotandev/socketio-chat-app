@@ -25,9 +25,15 @@ usernameForm.addEventListener("submit", (e) => {
   }
 });
 
+const formatDate = (date) => {
+  const options = { hour: "2-digit", minute: "2-digit" };
+  return date.toLocaleTimeString(undefined, options);
+};
+
 socket.on("message", (data) => {
   const item = document.createElement("li");
-  item.textContent = `${data.username}: ${data.msg}`;
+  const time = formatDate(new Date(data.time));
+  item.textContent = `[${time}] ${data.username}: ${data.msg}`;
   message.appendChild(item);
   window.scrollTo(0, document.body.scrollHeight);
 });

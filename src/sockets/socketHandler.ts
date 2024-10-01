@@ -6,12 +6,16 @@ export const setupSocket = (io: Server) => {
 
     socket.on("set username", (name) => {
       username = name || "Anonymous";
-      socket.broadcast.emit("user connected", `${username} has joined the chat`);
+      socket.broadcast.emit(
+        "user connected",
+        `${username} has joined the chat`
+      );
     });
 
     socket.on("message", (data) => {
       console.log("Received message:", data);
-      io.emit("message", { username, msg: data.msg });
+      const timestamp = new Date().toISOString();
+      io.emit("message", { username: data.username, msg: data.msg, time: timestamp });
     });
 
     socket.on("disconnect", () => {
