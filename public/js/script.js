@@ -4,7 +4,7 @@ const input = document.getElementById("input");
 const form = document.getElementById("form");
 const usernameForm = document.getElementById("usernameForm");
 const usernameInput = document.getElementById("usernameInput");
-let username = "";
+let username = "Anonymous";
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -47,16 +47,55 @@ socket.on("message", (data) => {
   window.scrollTo(0, document.body.scrollHeight);
 });
 
-socket.on("user connected", (msg) => {
-  const li = document.createElement("li");
-  li.textContent = msg;
-  li.style.color = "green";
-  message.appendChild(li);
+const typingIndicator = document.getElementById("typingIndicator");
+const members = document.getElementById("members");
+let connectedUsers = [];
+
+socket.on("update user list", (users) => {
+  connectedUsers = users;
+  updateMembersList();
 });
 
-socket.on("user disconnected", (msg) => {
-  const li = document.createElement("li");
-  li.textContent = msg;
-  li.style.color = "red";
-  message.appendChild(li);
+socket.on("user connected", (username) => {
+  addSystemMessage(`${username} joined the chat`);
 });
+
+socket.on("user disconnected", (username) => {
+  addSystemMessage(`${username} left the chat`);
+});
+
+function updateMembersList() {
+  if (connectedUsers.length > 0) {
+    members.textContent = `Connected: ${connectedUsers.join(", ")}`;
+    members.style.display = "block";
+  } else {
+    members.style.display = "none";
+  }
+}
+
+input.addEventListener("input", () => {
+  if (input.value) {
+    socket.emit("typing", username);
+  } else {
+    typingIndicator.style.display = "none";
+    updateMembersList();
+  }
+});
+
+socket.on("typing", (username) => {
+  typingIndicator.textContent = `${username} is typing...`;
+  typingIndicator.style.display = "block";
+  members.style.display = "none";
+
+  setTimeout(() => {
+    typingIndicator.style.display = "none";
+    updateMembersList();
+  }, 1000);
+});
+
+function addSystemMessage(msg) {
+  const item = document.createElement("li");
+  item.textContent = msg;
+  item.style.color = "gray";
+  document.getElementById("messages").appendChild(item);
+}

@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
+    <header>
+      <div class="header-content">
+        <h1>Chat Socket.io</h1>
+        <div id="status">
+          <p id="members"></p>
+          <p id="typingIndicator" style="display: none"></p>
+        </div>
+      </div>
+    </header>
+
     <form id="usernameForm">
       <input type="text" id="usernameInput" placeholder="Enter your name" />
       <button type="submit">Join Chat</button>
